@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import FastAPI, HTTPException
-
+from pydantic import ValidationError
 from source import queries, schemas, models
 
 
@@ -32,8 +32,27 @@ def get_matriculas():
 
     return dados
 
+@app.get("/matriculas/", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
+def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
+
+    try:
+        search  = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    matricula = queries.get_matricula_data_by_cnm(data, search.cnm)
+    if not matricula:
+        raise HTTPException(status_code=404, detail="Matrícula não encontrada")
+
+    return schemas.MatriculaReturn(**matricula)
+
 @app.get("/matriculas/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
-def get_matricula(cartorio_num: int, matricula: str):
+def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.MatriculaReturn:
+    
+    try:
+        search  = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
     cartorio_num = str(cartorio_num)
     matricula = queries.get_matricula_data_by_matricula(data, cartorio_num, matricula)
