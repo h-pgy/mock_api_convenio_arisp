@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from source import queries, schemas, models
 
@@ -31,3 +31,13 @@ def get_matriculas():
         dados.append(schemas.MatriculaSearchData(**parsed))
 
     return dados
+
+@app.get("/matriculas/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
+def get_matricula(cartorio_num: int, matricula: str):
+
+    cartorio_num = str(cartorio_num)
+    matricula = queries.get_matricula_data_by_matricula(data, cartorio_num, matricula)
+    if not matricula:
+        raise HTTPException(status_code=404, detail="Matrícula não encontrada")
+
+    return schemas.MatriculaReturn(**matricula)

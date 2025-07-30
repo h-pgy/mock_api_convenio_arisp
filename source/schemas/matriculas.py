@@ -2,6 +2,8 @@ from pydantic import BaseModel, field_validator, Field
 import re
 from enum import Enum
 
+from .proprietario import Proprietario as SchemaProprietario
+
 class MatriculaSearch(BaseModel):
 
     matricula: str
@@ -66,7 +68,7 @@ class MatriculaReturn(BaseModel):
     cartorio_num: int= Field(..., description="Número do cartório (1-100)", ge=0, le=100)
     cnm: str= Field(..., description="Código CNM")
     endereco: str= Field(..., description="Endereço do imóvel")
-    proprietario: str= Field(..., description="Nome do proprietário")
+    proprietario: SchemaProprietario
     data_escritura: str= Field(..., description="Data da escritura")
     area_terreno: float= Field(..., description="Área do terreno em m²", gt=0)
     area_construida: float= Field(..., description="Área construída em m²", ge=0)
