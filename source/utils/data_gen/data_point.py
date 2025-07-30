@@ -26,7 +26,7 @@ class DataPointGen:
         self.averbar_transacoes()
 
         self.num_pdf_matricula = random.randint(1, 3)
-        self.path_matriculas = solve_path('matriculas', '../mock_data/static')
+        self.path_matriculas = solve_path('matriculas', 'static')
 
 
     def criar_imovel(self)->None:
