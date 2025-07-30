@@ -83,6 +83,7 @@ class DataGenerator:
                 'ocr': data_point.paginas,
                 'num_paginas': data_point.num_paginas,
                 'matricula': data_point.matricula_estruturada['matricula'],
+                'cartorio_num' : data_point.matricula_estruturada['cartorio_num'],
                 'cnm' : data_point.matricula_estruturada['cnm'],
             }
             i += 1

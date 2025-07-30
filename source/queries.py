@@ -44,3 +44,12 @@ def get_transacoes_by_matricula(data:Model, cartorio_num:str, matricula:str)->li
 def get_transacoes_by_cnm(data:Model, cnm:str)->list[dict]:
 
     return data.query_table_where('transacoes', {'cnm': cnm})
+
+
+def get_pages_by_matricula(data:Model, cartorio_num:str, matricula:str)->list[dict]:
+
+    return data.query_table_where('ocrs', {'cartorio_num' : cartorio_num, 'matricula': matricula})
+
+def get_pages_by_cnm(data:Model, cnm:str)->list[dict]:
+
+    return data.query_table_where('ocrs', {'cnm': cnm})
