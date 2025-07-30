@@ -17,7 +17,7 @@ app = FastAPI(
         }
     )
 
-@app.get("/matriculas/", response_model=List[schemas.MatriculaSearchData], tags=['Matrículas'])
+@app.get("/matriculas", response_model=List[schemas.MatriculaSearchData], tags=['Matrículas'])
 def get_matriculas():
 
     matriculas = queries.get_all_matriculas(data)
@@ -47,7 +47,7 @@ def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
 
     return schemas.MatriculaReturn(**matricula)
 
-@app.get("/matriculas/data/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrículas'])
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/data", response_model=schemas.MatriculaReturn, tags=['Matrículas'])
 def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.MatriculaReturn:
     
     try:
@@ -63,7 +63,7 @@ def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.Mat
     return schemas.MatriculaReturn(**matricula)
 
 
-@app.get("/matriculas/transacoes/{cartorio_num}/{matricula}", response_model=List[schemas.Transacao], tags=['Transações'])
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/transacoes", response_model=List[schemas.Transacao], tags=['Transações'])
 def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.Transacao]:
     try:
         search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
@@ -77,4 +77,28 @@ def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schem
 
     return [schemas.Transacao(**transacao) for transacao in transacoes]
 
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/paginas/{page_num}", response_model=schemas.Page, tags=['OCR'])
+def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -> schemas.Page:
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(cartorio_num)
+    paginas = queries.get_pages_by_matricula(data, cartorio_num, matricula)
+    if not paginas:
+        raise HTTPException(status_code=404, detail="Páginas não encontradas")
+
+    if page_num < 0 or page_num > len(paginas['ocr']):
+        raise HTTPException(status_code=404, detail="Número da página inválido")
+    page_num = page_num-1
+    pagina = paginas['ocr'][page_num]
+
+    parsed = {
+        'page_number' : page_num+1,
+        'ocr_content' : pagina['ocr'],
+        'size' : len(pagina['ocr'])
+    }
+
+    return schemas.Page(**parsed)
 
