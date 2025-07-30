@@ -1,4 +1,5 @@
 from typing import List
+from urllib import response
 from fastapi import FastAPI, HTTPException
 from pydantic import ValidationError
 from source import queries, schemas, models
@@ -16,7 +17,7 @@ app = FastAPI(
         }
     )
 
-@app.get("/matriculas/", response_model=List[schemas.MatriculaSearchData], tags=['Matrícula'])
+@app.get("/matriculas/", response_model=List[schemas.MatriculaSearchData], tags=['Matrículas'])
 def get_matriculas():
 
     matriculas = queries.get_all_matriculas(data)
@@ -32,7 +33,7 @@ def get_matriculas():
 
     return dados
 
-@app.get("/matriculas/data", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
+@app.get("/matriculas/data", response_model=schemas.MatriculaReturn, tags=['Matrículas'])
 def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
 
     try:
@@ -46,7 +47,7 @@ def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
 
     return schemas.MatriculaReturn(**matricula)
 
-@app.get("/matriculas/data/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
+@app.get("/matriculas/data/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrículas'])
 def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.MatriculaReturn:
     
     try:
@@ -60,5 +61,20 @@ def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.Mat
         raise HTTPException(status_code=404, detail="Matrícula não encontrada")
 
     return schemas.MatriculaReturn(**matricula)
+
+
+@app.get("/matriculas/transacoes/{cartorio_num}/{matricula}", response_model=List[schemas.Transacao], tags=['Transações'])
+def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.Transacao]:
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(cartorio_num)
+    transacoes = queries.get_transacoes_by_matricula(data, cartorio_num, matricula)
+    if not transacoes:
+        raise HTTPException(status_code=404, detail="Transações não encontradas")
+
+    return [schemas.Transacao(**transacao) for transacao in transacoes]
 
 

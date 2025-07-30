@@ -11,7 +11,7 @@ class DataGenerator:
         
         
         self.matriculas = self.build_matriculas_table()
-        self.transactions = self.build_transactions_table()
+        self.transacoes = self.build_transactions_table()
         self.sqls = self.build_sqls_table()
         self.ccirs = self.build_ccirs_table()
         self.ocrs = self.build_ocrs_table()
