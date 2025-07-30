@@ -6,8 +6,8 @@ from .proprietario import Proprietario as SchemaProprietario
 
 class MatriculaSearch(BaseModel):
 
-    matricula: str
-    cartorio_num: int
+    matricula: str = Field(..., description="Número da matrícula no formato XX.XXX")
+    cartorio_num: int = Field(..., description="Número do cartório (1-100)", ge=0, le=100)
 
     @field_validator('matricula')
     def validate_matricula(cls, value):

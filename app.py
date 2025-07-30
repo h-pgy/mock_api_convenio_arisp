@@ -16,7 +16,7 @@ app = FastAPI(
         }
     )
 
-@app.get("/matriculas", response_model=List[schemas.MatriculaSearchData], tags=['Matrícula'])
+@app.get("/matriculas/", response_model=List[schemas.MatriculaSearchData], tags=['Matrícula'])
 def get_matriculas():
 
     matriculas = queries.get_all_matriculas(data)
@@ -32,7 +32,7 @@ def get_matriculas():
 
     return dados
 
-@app.get("/matriculas/", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
+@app.get("/matriculas/data", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
 def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
 
     try:
@@ -46,7 +46,7 @@ def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
 
     return schemas.MatriculaReturn(**matricula)
 
-@app.get("/matriculas/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
+@app.get("/matriculas/data/{cartorio_num}/{matricula}", response_model=schemas.MatriculaReturn, tags=['Matrícula'])
 def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.MatriculaReturn:
     
     try:
@@ -60,3 +60,5 @@ def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.Mat
         raise HTTPException(status_code=404, detail="Matrícula não encontrada")
 
     return schemas.MatriculaReturn(**matricula)
+
+
