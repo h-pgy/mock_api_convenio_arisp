@@ -34,4 +34,4 @@ class EnderecoGen:
 
     @property
     def endereco_completo(self) -> str:
-        return f"{self.rua}, {self.numero}, {self.bairro}, cidade de {self.cidade} - {self.estado}, CEP: {self.cep}"
+        return f"Rua {self.rua}, {self.numero}, {self.bairro}, cidade de {self.cidade} - {self.estado}, CEP: {self.cep}"

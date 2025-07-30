@@ -19,7 +19,7 @@ class RegistroGen:
         self.largura = random.randint(1, 100)
         self.comprimento = random.randint(1, 100)
         self.area_terreno = self.largura * self.comprimento
-        self.area_construida = self.area_terreno * (1 - random.randint(0, 9))
+        self.area_construida = round(self.area_terreno * random.uniform(0, 1), 0)
         self.ano_construcao = random.randint(1900, 2023)
         self.data_escritura = self.faker.date_between(start_date='-100y', end_date='today')
         self.num_cartorio = str(num_cartorio)
@@ -45,7 +45,7 @@ class RegistroGen:
                 f'confinando de um lado com o lote {random.randint(1, 120)} de outro lado com o lote {random.randint(1, 120)}, e nos fundos com o lote {random.randint(1, 120)}')
         
         if self.tipo_imovel == 'Urbano':
-            frase += f', com {self.area_construida} m² de área construída'
+            frase += f', dotada de uma edificação com {self.area_construida} m² de área construída, construída no ano de {self.ano_construcao}'
 
         if self.tipo_imovel == 'Rural':
             cadastro = f', cadastro no Cadastro de Imóveis Rurais(CCIR) sob o número {self.ccir}'
