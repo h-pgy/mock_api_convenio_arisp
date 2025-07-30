@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Union
 
 
 def create_directory_if_not_exists(directory_path)->str:
@@ -31,13 +32,13 @@ def read_binary_file(file_name:str, parent_directory=None) -> bytes:
     with open(file, 'rb') as file:
         return file.read()
     
-def read_json_file(file_name, parent_directory=None) -> dict:
+def read_json_file(file_name, parent_directory=None) -> Union[dict, list]:
 
     file = get_file(file_name, parent_directory)
     with open(file, 'r') as file:
         return json.load(file)
     
-def save_json_file(data: dict, file_name: str, parent_directory=None) -> None:
+def save_json_file(data:Union[list, dict], file_name: str, parent_directory=None) -> None:
     
     file_path = get_file(file_name, parent_directory)
     with open(file_path, 'w') as file:
