@@ -44,6 +44,13 @@ class CNMSearch(BaseModel):
             raise ValueError(f'Parametro cnm deve estar no formato {patt}. Exemplo: 123456.1.1234567-12')
 
         return value
+    
+class MatriculaSearchData(MatriculaSearch, CNMSearch):
+    """
+    Model for searching matricula with CNM.
+    Combines MatriculaSearch and CNMSearch.
+    """
+    pass
 
 
 class TipoImovel(str, Enum):
