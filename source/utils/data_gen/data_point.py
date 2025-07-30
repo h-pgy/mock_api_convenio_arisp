@@ -20,6 +20,7 @@ class DataPointGen:
         self.criar_imovel()
         self.registrar()
         self.vincular_sqls()
+        self.vincular_ccirs()
 
         self.total_transacoes = random.randint(1, 50)
         self.averbar_transacoes()
