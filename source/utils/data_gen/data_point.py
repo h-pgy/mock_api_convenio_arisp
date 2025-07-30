@@ -117,6 +117,7 @@ class DataPointGen:
                 "ano_construcao": self.registro.ano_construcao,
                 "tipo_imovel": self.registro.tipo_imovel,
                 "matricula_pdf_file": self.matricula_pdf_filepath,
+                "matricula_pdf_id" : self.num_pdf_matricula
             }
         
         return parsed
@@ -149,7 +150,7 @@ class DataPointGen:
         """
         Retorna o caminho do PDF da matrícula.
         """
-        file_name = f"{self.documents.matricula}.pdf"
+        file_name = f"{self.num_pdf_matricula}.pdf"
         file_path = solve_path(file_name, self.path_matriculas)
         return file_path
     
