@@ -32,7 +32,7 @@ class TransacaoGen:
         return {
             "matricula": self.registro.matricula_num,
             "cartorio_num": self.num_cartorio,
-            "ccir" : self.registro.ccir,
+            "cnm" : self.registro.cnm,
             "num_averbacao": self.num_registro,
             "comprador": self.comprador.dados_estruturados,
             "vendedor": self.vendedor.dados_estruturados,

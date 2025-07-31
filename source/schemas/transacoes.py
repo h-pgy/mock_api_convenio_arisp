@@ -13,7 +13,7 @@ class Transacao(BaseModel):
 
     matricula: str = Field(..., description="Número da matrícula")
     cartorio_num: int = Field(..., description="Número do cartório")
-    ccir: str = Field(..., description="Número do CCIR")
+    cnm: str = Field(..., description="Número do CNM")
     num_averbacao: str = Field(..., description="Número da averbação")
     comprador: Proprietario = Field(..., description="Nome do comprador")
     vendedor: Proprietario = Field(..., description="Nome do vendedor")
