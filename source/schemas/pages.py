@@ -6,6 +6,7 @@ class Page(BaseModel):
     page_number: int = Field(..., description="Número da página", gt=0)
     ocr_content: str = Field(..., description="Conteúdo OCR da página")
     size: int = Field(..., description="Tamanho da página em caracteres", gt=0)
+    page_count: int = Field(..., description="Número total de páginas", gt=0)
 
 
 class FileMetadata(BaseModel):

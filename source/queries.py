@@ -48,8 +48,14 @@ def get_transacoes_by_cnm(data:Model, cnm:str)->list[dict]:
 
 def get_pages_by_matricula(data:Model, cartorio_num:str, matricula:str)->list[dict]:
 
-    return data.query_table_where('ocrs', {'cartorio_num' : cartorio_num, 'matricula': matricula})
+    results = data.query_table_where('ocrs', {'cartorio_num' : cartorio_num, 'matricula': matricula})
+    if results:
+        return results[0]
+    return {}
 
 def get_pages_by_cnm(data:Model, cnm:str)->list[dict]:
 
-    return data.query_table_where('ocrs', {'cnm': cnm})
+    results = data.query_table_where('ocrs', {'cnm': cnm})
+    if results:
+        return results[0]
+    return {}

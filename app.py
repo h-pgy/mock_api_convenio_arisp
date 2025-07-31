@@ -88,16 +88,17 @@ def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -
     paginas = queries.get_pages_by_matricula(data, cartorio_num, matricula)
     if not paginas:
         raise HTTPException(status_code=404, detail="Páginas não encontradas")
-
-    if page_num < 0 or page_num > len(paginas['ocr']):
+    paginas_ocr = paginas['ocr']
+    if page_num < 0 or page_num > len(paginas_ocr):
         raise HTTPException(status_code=404, detail="Número da página inválido")
     page_num = page_num-1
-    pagina = paginas['ocr'][page_num]
+    pagina_ocr_content = paginas_ocr[page_num]
 
     parsed = {
         'page_number' : page_num+1,
-        'ocr_content' : pagina['ocr'],
-        'size' : len(pagina['ocr'])
+        'ocr_content' : pagina_ocr_content,
+        'size' : len(pagina_ocr_content),
+        "page_count" : len(paginas_ocr)
     }
 
     return schemas.Page(**parsed)
