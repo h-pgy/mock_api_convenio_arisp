@@ -64,12 +64,12 @@ class DataPointGen:
 
         self.ccirs: List[str] = []
 
-        num_ccirs = random.randint(0, 2)
+        num_ccirs = random.randint(1, 2)
 
-        if num_ccirs > 0 and self.registro.tipo_imovel == 'Rural':
+        if self.registro.tipo_imovel == 'Rural':
             self.ccirs.append(self.registro.ccir)
 
-            for _ in range(num_ccirs-1):
+            for _ in range(num_ccirs):
                 self.ccirs.append(self.documents.ccir)
 
 

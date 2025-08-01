@@ -221,6 +221,57 @@ def get_sqls_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.SQL
 
     return [schemas.SQL(**parsed_data) for parsed_data in dados_final]
 
+@app.get("/matriculas/ccirs", response_model=List[schemas.CCIR], tags=['CCIR'])
+def get_ccirs_by_cnm(cnm: str) -> List[schemas.CCIR]:
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    dados_bd = queries.get_ccirs_by_cnm(data, search.cnm)
+    if not dados_bd:
+        raise HTTPException(status_code=404, detail="CCIRs não encontrados")
+    
+    ccirs_data = dados_bd['ccirs']
+    
+    dados_final = []
+    for ccir in ccirs_data:
+        parsed = {
+            'cartorio_num': dados_bd['cartorio_num'],
+            'matricula': dados_bd['matricula'],
+            'cnm': dados_bd['cnm'],
+            'ccir' : ccir
+        }
+        dados_final.append(parsed)
+
+    return [schemas.CCIR(**parsed_data) for parsed_data in dados_final]
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ccirs", response_model=List[schemas.CCIR], tags=['CCIR'])
+def get_ccirs_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.CCIR]:
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(search.cartorio_num)
+    dados_bd = queries.get_ccirs_by_matricula(data, cartorio_num, search.matricula)
+    if not dados_bd:
+        raise HTTPException(status_code=404, detail="CCIRs não encontrados")
+
+    ccirs_data = dados_bd['ccirs']
+
+    dados_final = []
+    for ccir in ccirs_data:
+        parsed = {
+            'cartorio_num': dados_bd['cartorio_num'],
+            'matricula': dados_bd['matricula'],
+            'cnm': dados_bd['cnm'],
+            'ccir': ccir
+        }
+        dados_final.append(parsed)
+
+    return [schemas.CCIR(**parsed_data) for parsed_data in dados_final]
+
 @app.get("/matriculas/ocr/{page_num}", response_model=schemas.Page, tags=['OCR'])
 def get_paginas_by_cnm(cnm: str, page_num: int) -> schemas.Page:
     try:
