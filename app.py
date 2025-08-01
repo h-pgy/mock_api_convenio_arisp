@@ -64,6 +64,20 @@ def get_matricula_by_matricula(cartorio_num: int, matricula: str) -> schemas.Mat
     return schemas.MatriculaReturn(**matricula)
 
 
+@app.get('/matriculas/transacoes', response_model=List[schemas.Transacao], tags=['Transações'])
+def get_transacoes_by_cnm(cnm: str) -> List[schemas.Transacao]:
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    transacoes = queries.get_transacoes_by_cnm(data, search.cnm)
+    if not transacoes:
+        raise HTTPException(status_code=404, detail="Transações não encontradas")
+
+    return [schemas.Transacao(**transacao) for transacao in transacoes]
+
+
 @app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/transacoes", response_model=List[schemas.Transacao], tags=['Transações'])
 def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.Transacao]:
     try:
@@ -78,6 +92,24 @@ def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schem
 
     return [schemas.Transacao(**transacao) for transacao in transacoes]
 
+
+@app.get("/matriculas/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
+def get_metadados_by_cnm(cnm: str):
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    
+    ocr = queries.get_pages_by_cnm(data, search.cnm)
+    if not ocr:
+        raise HTTPException(status_code=404, detail="Metados do OCR não encontrados")
+    
+    parsed = {
+        'page_count': ocr['num_paginas'],
+        'ocr_available': True
+    }
+
+    return schemas.OCRMetadata(**parsed)
 
 @app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
 def get_metadados_by_matricula(cartorio_num: int, matricula:str):
@@ -98,6 +130,33 @@ def get_metadados_by_matricula(cartorio_num: int, matricula:str):
     }
 
     return schemas.OCRMetadata(**parsed)
+
+@app.get("/matriculas/ocr/{page_num}", response_model=schemas.Page, tags=['OCR'])
+def get_paginas_by_cnm(cnm: str, page_num: int) -> schemas.Page:
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    ocr = queries.get_pages_by_cnm(data, search.cnm)
+    if not ocr:
+        raise HTTPException(status_code=404, detail="Páginas não encontradas")
+    
+    paginas_ocr = ocr['ocr']
+    if page_num < 0 or page_num > len(paginas_ocr):
+        raise HTTPException(status_code=404, detail="Número da página inválido")
+    
+    page_num = page_num-1
+    pagina_ocr_content = paginas_ocr[page_num]
+
+    parsed = {
+        'page_number' : page_num+1,
+        'ocr_content' : pagina_ocr_content,
+        'size' : len(pagina_ocr_content),
+        "page_count" : len(paginas_ocr)
+    }
+
+    return schemas.Page(**parsed)
 
 @app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/{page_num}", response_model=schemas.Page, tags=['OCR'])
 def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -> schemas.Page:
@@ -124,6 +183,22 @@ def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -
     }
 
     return schemas.Page(**parsed)
+
+
+@app.get("/matriculas/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
+def get_proprietarios_by_cnm(cnm: str) -> List[schemas.ProprietarioFull]:
+
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+    proprietarios = queries.get_proprietarios_by_cnm(data, search.cnm)
+    if not proprietarios:
+        raise HTTPException(status_code=404, detail="Proprietários não encontrados")
+
+    return [schemas.ProprietarioFull(**proprietario) for proprietario in proprietarios]
 
 @app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
 def get_proprietarios_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.ProprietarioFull]:
