@@ -34,6 +34,36 @@ def get_matriculas():
 
     return dados
 
+
+@app.get("/matriculas/cartorios", tags=['Matrículas'])
+def get_numeros_cartorios() -> List[int]:
+    matriculas = queries.get_all_matriculas(data)
+    cartorios = list(set(matricula['cartorio_num'] for matricula in matriculas))
+    return cartorios
+
+@app.get("/matriculas/cartorios/{cartorio_num}", response_model=List[schemas.MatriculaSearchData], tags=['Matrículas'])
+def get_matriculas_by_cartorio(cartorio_num: int) -> List[schemas.MatriculaSearchData]:
+
+    if not isinstance(cartorio_num, int) or cartorio_num < 0 or cartorio_num > 100:
+        raise HTTPException(status_code=422, detail="Cartório inválido")
+
+    cartorio_num = str(cartorio_num)
+    matriculas = queries.get_matriculas_by_cartorio(data, cartorio_num)
+    if not matriculas:
+        raise HTTPException(status_code=404, detail="Cartório não encontrado")
+
+    dados = []
+    for matricula in matriculas:
+        parsed = {
+            'matricula' : matricula['matricula'],
+            'cartorio_num' : matricula['cartorio_num'],
+            'cnm' : matricula['cnm']
+        }
+
+        dados.append(schemas.MatriculaSearchData(**parsed))
+
+    return dados
+
 @app.get("/matriculas/data", response_model=schemas.MatriculaReturn, tags=['Matrículas'])
 def get_matricula_by_cnm(cnm:str) -> schemas.MatriculaReturn:
 

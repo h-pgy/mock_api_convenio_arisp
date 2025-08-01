@@ -6,6 +6,11 @@ def get_all_matriculas(data:Model)->list[dict]:
     return data.query_full_table('matriculas')
 
 
+def get_matriculas_by_cartorio(data:Model, cartorio_num:str)->list[dict]:
+
+    return data.query_table_where('matriculas', {'cartorio_num': cartorio_num})
+
+
 def get_matricula_data_by_matricula(data:Model, cartorio_num:str, matricula:str)->dict:
 
     results = data.query_table_where('matriculas', {'cartorio_num': cartorio_num, 'matricula': matricula})
