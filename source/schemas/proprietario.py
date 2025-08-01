@@ -14,3 +14,11 @@ class Proprietario(BaseModel):
     profissao: str = Field(..., description="Profissão do proprietário")
     endereco: str = Field(..., description="Endereço do proprietário")
     estado_civil: EstadoCivil = Field(..., description="Estado civil do proprietário")
+
+
+class ProprietarioFull(Proprietario):
+
+    id: int = Field(..., description="ID do proprietário")
+    cartorio_num: str = Field(..., description="Número do cartório onde o imóvel está registrado")
+    matricula: str = Field(..., description="Matrícula do imóvel")
+    cnm: str = Field(..., description="Código Nacional de Matrícula (CNM) do imóvel")

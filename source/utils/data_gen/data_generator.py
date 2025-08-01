@@ -2,6 +2,7 @@ from typing import List, Callable
 from .data_point import DataPointGen
 import os
 from tqdm import tqdm
+from copy import deepcopy
 from ..file_io import read_json_file, save_json_file, solve_path
 
 class DataGenerator:
@@ -30,6 +31,8 @@ class DataGenerator:
         self.ccirs = self.build_ccirs_table()
         print('Construindo tabela de OCRs')
         self.ocrs = self.build_ocrs_table()
+        print('Construindo tabela de proprietarios')
+        self.proprietarios = self.build_proprietarios_table()
 
     def build_matriculas_table(self) -> list[dict]:
 
@@ -105,6 +108,27 @@ class DataGenerator:
             ocrs.append(dados)
 
         return ocrs
+    
+    def build_proprietarios_table(self)->list[dict]:
+
+        proprietarios = []
+        i = 0
+        for data_point in self.data_points:
+            dados_proprietario = data_point.proprietario_atual.dados_estruturados
+            dados_proprietario = deepcopy(dados_proprietario)
+            outros_dados = {
+                'id': i + 1,
+                'matricula': data_point.matricula_estruturada['matricula'],
+                'cartorio_num' : data_point.matricula_estruturada['cartorio_num'],
+                'cnm' : data_point.matricula_estruturada['cnm'],
+            }
+
+            dados_proprietario.update(outros_dados)
+
+            i+=1
+            proprietarios.append(dados_proprietario)
+
+        return proprietarios
     
 
 

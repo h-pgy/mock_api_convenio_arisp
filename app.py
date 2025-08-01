@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from source import queries, schemas, models
 
 
-data = models.Model()
+data = models.Model(qtd_imoveis=10)
 
 app = FastAPI(
     title="Mock API para Convênio com ARISP",
@@ -124,4 +124,18 @@ def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -
     }
 
     return schemas.Page(**parsed)
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
+def get_proprietarios_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.ProprietarioFull]:
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(cartorio_num)
+    proprietarios = queries.get_proprietarios_by_matricula(data, cartorio_num, matricula)
+    if not proprietarios:
+        raise HTTPException(status_code=404, detail="Proprietários não encontrados")
+
+    return [schemas.ProprietarioFull(**proprietario) for proprietario in proprietarios]
 

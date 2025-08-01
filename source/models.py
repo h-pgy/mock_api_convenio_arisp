@@ -2,9 +2,9 @@ from .utils.data_gen import DataGenerator
 
 class Model:
 
-    def __init__(self):
+    def __init__(self, qtd_imoveis:int=100):
 
-        self.data = DataGenerator()
+        self.data = DataGenerator(qtd_imoveis)
 
     def solve_table(self, table_name: str) -> list[dict]:
 
