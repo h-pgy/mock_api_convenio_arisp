@@ -25,13 +25,23 @@ def get_matricula_data_by_cnm(data:Model, cnm:str)->dict:
         return results[0]
     return {}
 
-def get_sqls_by_matricula(data:Model, cartorio_num:str, matricula:str)->list[dict]:
+def get_sqls_by_matricula(data:Model, cartorio_num:str, matricula:str)->dict:
 
-    return data.query_table_where('sqls', {'cartorio_num' : cartorio_num, 'matricula': matricula})
+    results = data.query_table_where('sqls', {'cartorio_num' : cartorio_num, 'matricula': matricula})
 
-def get_sqls_by_cnm(data:Model, cnm:str)->list[dict]:
+    if not results:
+        return {}
+    
+    return results[0]
 
-    return data.query_table_where('sqls', {'cnm': cnm})
+def get_sqls_by_cnm(data:Model, cnm:str)->dict:
+
+    results = data.query_table_where('sqls', {'cnm': cnm})
+
+    if not results:
+        return {}
+    
+    return results[0]
 
 def get_ccirs_by_matricula(data:Model, cartorio_num:str, matricula:str)->list[dict]:
 

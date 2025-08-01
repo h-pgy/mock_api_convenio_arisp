@@ -2,7 +2,10 @@ from pydantic import BaseModel, Field, field_validator
 import re
 
 class SQL(BaseModel):
-
+    
+    cartorio_num: str = Field(..., description="Número do cartório onde o imóvel está registrado")
+    matricula: str = Field(..., description="Matrícula do imóvel")
+    cnm: str = Field(..., description="Código Nacional de Matrícula (CNM) do Imóvel")
     sql: str = Field(..., description="Numero SQL no formato XXX.XXX.XXXX-XX")
     setor: int = Field(..., description="Setor do lote", gt=0)
     quadra: int = Field(..., description="Quadra do lote", gt=0)
@@ -23,6 +26,9 @@ class SQL(BaseModel):
     
 class CCIR(BaseModel):
 
+    cartorio_num: str = Field(..., description="Número do cartório onde o imóvel está registrado")
+    matricula: str = Field(..., description="Matrícula do imóvel")
+    cnm: str = Field(..., description="Código Nacional de Matrícula (CNM) do Imóvel")
     ccir: str = Field(..., description="Numero CCIR no formato XXX.XXX.XXX.XXX-X")
 
     @field_validator('ccir')

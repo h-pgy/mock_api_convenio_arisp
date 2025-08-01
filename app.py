@@ -161,6 +161,66 @@ def get_metadados_by_matricula(cartorio_num: int, matricula:str):
 
     return schemas.OCRMetadata(**parsed)
 
+@app.get("/matriculas/sqls", response_model=List[schemas.SQL], tags=['SQL'])
+def get_sqls_by_cnm(cnm: str) -> List[schemas.SQL]:
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    dados_bd= queries.get_sqls_by_cnm(data, search.cnm)
+    if not dados_bd:
+        raise HTTPException(status_code=404, detail="SQLs não encontrados")
+    sql_data = dados_bd['sqls']
+    
+    dados_final = []
+    for sql in sql_data:
+        parsed = {
+            'cartorio_num': dados_bd['cartorio_num'],
+            'matricula': dados_bd['matricula'],
+            'cnm': dados_bd['cnm'],
+            'sql' : sql,
+            'setor' : sql[:3],
+            'quadra' : sql[4:7],
+            'lote' : sql[8:12],
+            'condominio' : sql[13:15]
+        }
+        dados_final.append(parsed)
+
+    return [schemas.SQL(**parsed_data) for parsed_data in dados_final]
+
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/sqls", response_model=List[schemas.SQL], tags=['SQL'])
+def get_sqls_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.SQL]:
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(search.cartorio_num)
+    dados_bd= queries.get_sqls_by_matricula(data, cartorio_num, search.matricula)
+    if not dados_bd:
+        raise HTTPException(status_code=404, detail="SQLs não encontrados")
+    sql_data = dados_bd['sqls']
+    
+
+
+    dados_final = []
+    for sql in sql_data:
+        parsed = {
+            'cartorio_num': dados_bd['cartorio_num'],
+            'matricula': dados_bd['matricula'],
+            'cnm': dados_bd['cnm'],
+            'sql' : sql,
+            'setor' : sql[:3],
+            'quadra' : sql[4:7],
+            'lote' : sql[8:12],
+            'condominio' : sql[13:15]
+        }
+        dados_final.append(parsed)
+
+    return [schemas.SQL(**parsed_data) for parsed_data in dados_final]
+
 @app.get("/matriculas/ocr/{page_num}", response_model=schemas.Page, tags=['OCR'])
 def get_paginas_by_cnm(cnm: str, page_num: int) -> schemas.Page:
     try:
