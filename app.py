@@ -14,7 +14,8 @@ app = FastAPI(
     contact={
         "name": "Henrique Pougy",
         "email": "hpougy@prefeitura.sp.gov.br"
-        }
+        },
+    docs_url="/"
     )
 
 @app.get("/matriculas", response_model=List[schemas.MatriculaSearchData], tags=['Matrículas'])
