@@ -1,19 +1,34 @@
 from typing import List, Callable
 from .data_point import DataPointGen
 import os
+from tqdm import tqdm
 from ..file_io import read_json_file, save_json_file, solve_path
 
 class DataGenerator:
     
-    def __init__(self, num_matriculas: int = 100) -> None:
+    def __init__(self, qtd_imoveis: int = 100) -> None:
 
-        self.data_points = [DataPointGen() for _ in range(num_matriculas)]
-        
-        
+        self.qtd_imoveis = qtd_imoveis
+        self.generate_data()
+
+    def generate_data(self)->None:
+
+        print(f'Gerando dados para {self.qtd_imoveis} imóveis...')
+
+        self.data_points = []
+
+        for i in tqdm(range(self.qtd_imoveis)):
+            self.data_points.append(DataPointGen())
+
+        print('Construindo tabela de matrículas')
         self.matriculas = self.build_matriculas_table()
+        print('Construindo tabela de transações')
         self.transacoes = self.build_transactions_table()
+        print('Construindo tabela de SQLs')
         self.sqls = self.build_sqls_table()
+        print('Construindo tabela de CCIRs')
         self.ccirs = self.build_ccirs_table()
+        print('Construindo tabela de OCRs')
         self.ocrs = self.build_ocrs_table()
 
     def build_matriculas_table(self) -> list[dict]:
