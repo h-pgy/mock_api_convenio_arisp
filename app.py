@@ -78,7 +78,28 @@ def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schem
 
     return [schemas.Transacao(**transacao) for transacao in transacoes]
 
-@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/paginas/{page_num}", response_model=schemas.Page, tags=['OCR'])
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
+def get_metadados_by_matricula(cartorio_num: int, matricula:str):
+
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    
+    cartorio_num = str(cartorio_num)
+    ocr = queries.get_pages_by_matricula(data, cartorio_num, matricula)
+    if not ocr:
+        raise HTTPException(status_code=404, detail="Metados do OCR não encontrados")
+    
+    parsed = {
+        'page_count': ocr['num_paginas'],
+        'ocr_available': True
+    }
+
+    return schemas.OCRMetadata(**parsed)
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/{page_num}", response_model=schemas.Page, tags=['OCR'])
 def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -> schemas.Page:
     try:
         search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)

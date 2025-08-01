@@ -8,6 +8,11 @@ class Page(BaseModel):
     size: int = Field(..., description="Tamanho da página em caracteres", gt=0)
     page_count: int = Field(..., description="Número total de páginas", gt=0)
 
+class OCRMetadata(BaseModel):
+
+    page_count: int = Field(..., description="Número total de páginas", gt=0)
+    ocr_available: bool = Field(..., description="Indica se o OCR está disponível")
+
 
 class FileMetadata(BaseModel):
 
