@@ -1,6 +1,7 @@
 from typing import List
 from urllib import response
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import ValidationError
 from source import queries, schemas, models
 
@@ -123,44 +124,6 @@ def get_transacoes_by_matricula(cartorio_num: int, matricula: str) -> List[schem
     return [schemas.Transacao(**transacao) for transacao in transacoes]
 
 
-@app.get("/matriculas/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
-def get_metadados_by_cnm(cnm: str):
-    try:
-        search = schemas.CNMSearch(cnm=cnm)
-    except ValidationError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    
-    ocr = queries.get_pages_by_cnm(data, search.cnm)
-    if not ocr:
-        raise HTTPException(status_code=404, detail="Metados do OCR não encontrados")
-    
-    parsed = {
-        'page_count': ocr['num_paginas'],
-        'ocr_available': True
-    }
-
-    return schemas.OCRMetadata(**parsed)
-
-@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
-def get_metadados_by_matricula(cartorio_num: int, matricula:str):
-
-    try:
-        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
-    except ValidationError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    
-    cartorio_num = str(cartorio_num)
-    ocr = queries.get_pages_by_matricula(data, cartorio_num, matricula)
-    if not ocr:
-        raise HTTPException(status_code=404, detail="Metados do OCR não encontrados")
-    
-    parsed = {
-        'page_count': ocr['num_paginas'],
-        'ocr_available': True
-    }
-
-    return schemas.OCRMetadata(**parsed)
-
 @app.get("/matriculas/sqls", response_model=List[schemas.SQL], tags=['SQL'])
 def get_sqls_by_cnm(cnm: str) -> List[schemas.SQL]:
     try:
@@ -272,6 +235,37 @@ def get_ccirs_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.CC
 
     return [schemas.CCIR(**parsed_data) for parsed_data in dados_final]
 
+
+@app.get("/matriculas/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
+def get_proprietarios_by_cnm(cnm: str) -> List[schemas.ProprietarioFull]:
+
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+    proprietarios = queries.get_proprietarios_by_cnm(data, search.cnm)
+    if not proprietarios:
+        raise HTTPException(status_code=404, detail="Proprietários não encontrados")
+
+    return [schemas.ProprietarioFull(**proprietario) for proprietario in proprietarios]
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
+def get_proprietarios_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.ProprietarioFull]:
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(cartorio_num)
+    proprietarios = queries.get_proprietarios_by_matricula(data, cartorio_num, matricula)
+    if not proprietarios:
+        raise HTTPException(status_code=404, detail="Proprietários não encontrados")
+
+    return [schemas.ProprietarioFull(**proprietario) for proprietario in proprietarios]
+
+
 @app.get("/matriculas/ocr/{page_num}", response_model=schemas.Page, tags=['OCR'])
 def get_paginas_by_cnm(cnm: str, page_num: int) -> schemas.Page:
     try:
@@ -326,32 +320,99 @@ def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -
     return schemas.Page(**parsed)
 
 
-@app.get("/matriculas/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
-def get_proprietarios_by_cnm(cnm: str) -> List[schemas.ProprietarioFull]:
+@app.get("/matriculas/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
+def get_metadados_by_cnm(cnm: str):
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    
+    ocr = queries.get_pages_by_cnm(data, search.cnm)
+    if not ocr:
+        raise HTTPException(status_code=404, detail="Metados do OCR não encontrados")
+    
+    parsed = {
+        'page_count': ocr['num_paginas'],
+        'ocr_available': True
+    }
 
+    return schemas.OCRMetadata(**parsed)
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
+def get_metadados_by_matricula(cartorio_num: int, matricula:str):
+
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    
+    cartorio_num = str(search.cartorio_num)
+    ocr = queries.get_pages_by_matricula(data, cartorio_num, search.matricula)
+    if not ocr:
+        raise HTTPException(status_code=404, detail="Metados do OCR não encontrados")
+    
+    parsed = {
+        'page_count': ocr['num_paginas'],
+        'ocr_available': True
+    }
+
+    return schemas.OCRMetadata(**parsed)
+
+@app.get("/matriculas/files/metadados", response_model=schemas.FileMetadata, tags=['Files'])
+def get_file_metadados_by_cnm(cnm: str):
     try:
         search = schemas.CNMSearch(cnm=cnm)
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
+    file_metadata = queries.get_file_metadata_by_cnm(data, search.cnm)
+    if not file_metadata:
+        raise HTTPException(status_code=404, detail="Metadados do arquivo não encontrados")
 
-    proprietarios = queries.get_proprietarios_by_cnm(data, search.cnm)
-    if not proprietarios:
-        raise HTTPException(status_code=404, detail="Proprietários não encontrados")
+    return schemas.FileMetadata(**file_metadata)
 
-    return [schemas.ProprietarioFull(**proprietario) for proprietario in proprietarios]
-
-@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/proprietarios/", response_model=List[schemas.ProprietarioFull], tags=['Proprietários'])
-def get_proprietarios_by_matricula(cartorio_num: int, matricula: str) -> List[schemas.ProprietarioFull]:
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/files/metadados", response_model=schemas.FileMetadata, tags=['Files'])
+def get_file_metadados_by_matricula(cartorio_num: int, matricula: str):
     try:
         search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
-    cartorio_num = str(cartorio_num)
-    proprietarios = queries.get_proprietarios_by_matricula(data, cartorio_num, matricula)
-    if not proprietarios:
-        raise HTTPException(status_code=404, detail="Proprietários não encontrados")
+    cartorio_num = str(search.cartorio_num)
+    file_metadata = queries.get_file_metadata_by_matricula(data, cartorio_num, search.matricula)
+    if not file_metadata:
+        raise HTTPException(status_code=404, detail="Metadados do arquivo não encontrados")
 
-    return [schemas.ProprietarioFull(**proprietario) for proprietario in proprietarios]
+    return schemas.FileMetadata(**file_metadata)
 
+@app.get("/matriculas/files/content", response_model=bytes, tags=['Files'])
+def get_file_content_by_cnm(cnm: str):
+    try:
+        search = schemas.CNMSearch(cnm=cnm)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    file_metadata = queries.get_file_metadata_by_cnm(data, search.cnm, return_file_path=True)
+    if not file_metadata:
+        raise HTTPException(status_code=404, detail="Metadados do arquivo não encontrados")
+
+    file_path = file_metadata['file_path']
+
+    return FileResponse(path=file_path, filename=file_path, media_type="application/pdf")
+
+
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/files/content", response_model=bytes, tags=['Files'])
+def get_file_content_by_matricula(cartorio_num: int, matricula: str):
+    try:
+        search = schemas.MatriculaSearch(matricula=matricula, cartorio_num=cartorio_num)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    cartorio_num = str(search.cartorio_num)
+    file_metadata = queries.get_file_metadata_by_matricula(data, cartorio_num, search.matricula, return_file_path=True)
+    if not file_metadata:
+        raise HTTPException(status_code=404, detail="Metadados do arquivo não encontrados")
+    
+    file_path = file_metadata['file_path']
+
+    return FileResponse(path=file_path, filename=file_path, media_type="application/pdf")

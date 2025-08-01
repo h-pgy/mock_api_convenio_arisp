@@ -1,5 +1,7 @@
 from .models import Model
-
+import os
+from PyPDF2 import PdfReader
+from .utils.file_io import read_binary_file
 
 def get_all_matriculas(data:Model)->list[dict]:
 
@@ -88,3 +90,55 @@ def get_proprietarios_by_matricula(data:Model, cartorio_num:str, matricula:str)-
 def get_proprietarios_by_cnm(data:Model, cnm:str)->list[dict]:
 
     return data.query_table_where('proprietarios', {'cnm': cnm})
+
+
+
+def get_file_metadata_by_matricula(data:Model, cartorio_num:str, matricula:str, return_file_path:bool=False)->dict:
+
+    dados = get_matricula_data_by_matricula(data, cartorio_num, matricula)
+    if not dados:
+        return {}
+
+    file_path = dados['matricula_pdf_file']
+    file_name = os.path.basename(file_path)
+    file_size = os.path.getsize(file_path)
+    reader = PdfReader(file_path)
+    num_pages = len(reader.pages)
+    id_ = file_path.split('/')[-1].split('.')[0]
+    dados = {
+        'file_id' : id_,
+        'file_name': file_name,
+        'file_size': file_size,
+        'page_count': num_pages
+    }
+
+    if return_file_path:
+        dados['file_path'] = file_path
+
+    return dados
+
+def get_file_metadata_by_cnm(data:Model, cnm:str, return_file_path:bool=False)->dict:
+
+    dados = get_matricula_data_by_cnm(data, cnm)
+    if not dados:
+        return {}
+
+    file_path = dados['matricula_pdf_file']
+    file_name = os.path.basename(file_path)
+    file_size = os.path.getsize(file_path)
+    reader = PdfReader(file_path)
+    num_pages = len(reader.pages)
+    id_ = file_path.split('/')[-1].split('.')[0]
+    dados = {
+        'file_id' : id_,
+        'file_name': file_name,
+        'file_size': file_size,
+        'page_count': num_pages
+    }
+
+    if return_file_path:
+        dados['file_path'] = file_path
+
+    return dados
+
+
