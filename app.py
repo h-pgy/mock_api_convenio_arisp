@@ -320,7 +320,7 @@ def get_paginas_by_matricula(cartorio_num: int, matricula: str, page_num: int) -
     return schemas.Page(**parsed)
 
 
-@app.get("/matriculas/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
+@app.get("/matriculas/metadados/ocr", response_model=schemas.OCRMetadata, tags=['OCR'])
 def get_metadados_by_cnm(cnm: str):
     try:
         search = schemas.CNMSearch(cnm=cnm)
@@ -338,7 +338,7 @@ def get_metadados_by_cnm(cnm: str):
 
     return schemas.OCRMetadata(**parsed)
 
-@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/ocr/metadados", response_model=schemas.OCRMetadata, tags=['OCR'])
+@app.get("/matriculas/cartorios/{cartorio_num}/{matricula}/metadados/ocr/", response_model=schemas.OCRMetadata, tags=['OCR'])
 def get_metadados_by_matricula(cartorio_num: int, matricula:str):
 
     try:
