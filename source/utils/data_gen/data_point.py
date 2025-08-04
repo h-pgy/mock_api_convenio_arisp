@@ -49,7 +49,7 @@ class DataPointGen:
         """
         self.sqls: List[str] = []
 
-        num_sqls = random.randint(0, 3)
+        num_sqls = random.randint(1, 5)
 
         if num_sqls > 0 and self.registro.tipo_imovel == 'Urbano':
             self.sqls.append(self.registro.sql)
